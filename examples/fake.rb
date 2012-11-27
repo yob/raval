@@ -47,8 +47,8 @@ class FakeFTPDriver
     end
   end
 
-  def put_file(path, data)
-    false
+  def put_file(path, tmp_path)
+    File.size(tmp_path)
   end
 
   def delete_file(path)
