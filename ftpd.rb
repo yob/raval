@@ -164,7 +164,7 @@ module FTP
       close_datasocket
 
       @datasocket = ActiveSocket.new(host, port)
-      @datasocket.async.run
+      @datasocket.async.connect
       wait_for_datasocket do
         @connection.send_response(200, "Connection established (#{port})")
       end
@@ -339,6 +339,7 @@ module FTP
       send_param_required and return if param.nil?
 
       path = build_path(param)
+      @datasocket.async.connect
 
       if @driver.respond_to?(:put_file_streamed)
         cmd_stor_streamed(path)
@@ -368,21 +369,19 @@ module FTP
       tmpfile = Tempfile.new("celluloid-ftpd")
       tmpfile.binmode
 
-      @datasocket.on_receive do |chunk|
-        tmpfile.write chunk
-      end
-      @datasocket.on_close do
-        tmpfile.flush
-        bytes = @driver.put_file(target_path, tmpfile.path)
-        if bytes
-          @connection.send_response(200, "OK, received #{bytes} bytes")
-        else
-          send_action_not_taken
-        end
-        tmpfile.close
-        tmpfile.unlink
-      end
       @connection.send_response(150, "Data transfer starting")
+      while chunk = @datasocket.read
+        tmpfile.write(chunk)
+      end
+      tmpfile.flush
+      bytes = @driver.put_file(target_path, tmpfile.path)
+      if bytes
+        @connection.send_response(200, "OK, received #{bytes} bytes")
+      else
+        send_action_not_taken
+      end
+      tmpfile.close
+      tmpfile.unlink
     end
 
     private
@@ -501,42 +500,35 @@ module FTP
 
     def initialize(host, port)
       @host, @port = host, port
-      @on_receive = nil
-      @on_close = nil
       @socket = nil
     end
 
-    def run
-      @socket = ::TCPSocket.new(@host, @port)
-      loop do
-        if @on_receive
-          @on_receive.call(@socket.readpartial(4096))
-        end
-        sleep 1 if @on_receive.nil?
+    def connect
+      unless @socket
+        @socket = ::TCPSocket.new(@host, @port)
       end
-    rescue EOFError
+    end
+
+    def read
+      connect unless @socket
+      @socket.readpartial(4096)
+    rescue EOFError, Errno::ECONNRESET
       close
+      nil
+    end
+
+    def write(data)
+      connect unless @socket
+      @socket.write(data)
     end
 
     def connected?
       @socket != nil
     end
 
-    def on_close(&block)
-      @on_close = block
-    end
-
-    def on_receive(&block)
-      @on_receive = block
-    end
-
-    def write(data)
-      @socket.write(data)
-    end
-
     def close
       @socket.close
-      @on_close.call if @on_close
+      @socket = nil
     end
   end
 
