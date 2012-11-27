@@ -163,10 +163,11 @@ module FTP
       host = nums[0..3].join('.')
       close_datasocket
 
-      @datasocket = ActiveSocket.new(host, port) do
+      @datasocket = ActiveSocket.new(host, port)
+      @datasocket.async.run
+      wait_for_datasocket do
         @connection.send_response(200, "Connection established (#{port})")
       end
-      @datasocket.async.run
 
     rescue => e
       puts "Error opening data connection to #{host}:#{port}"
@@ -498,16 +499,15 @@ module FTP
   class ActiveSocket
     include Celluloid::IO
 
-    def initialize(host, port, &block)
+    def initialize(host, port)
       @host, @port = host, port
       @on_receive = nil
       @on_close = nil
-      @on_connect = block
+      @socket = nil
     end
 
     def run
       @socket = ::TCPSocket.new(@host, @port)
-      @on_connect.call
       loop do
         if @on_receive
           @on_receive.call(@socket.readpartial(4096))
