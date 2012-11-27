@@ -32,8 +32,8 @@ persistence layer.
 
 ## The Driver Contract
 
-The driver MUST have the following methods. Each method MUST return the
-required value.
+The driver MUST have the following methods.  Each method MUST accept the listed
+parameters and return an appropriate value:
 
     authenticate(user, pass)
     - boolean indicating if the provided details are valid
@@ -68,8 +68,8 @@ required value.
     - an IOish (File, StringIO, IO, etc) object with data to send back to the
       client
 
-The driver MUST have one of the following methods. Each method MUST accept a
-block and yield the appropriate value:
+The driver MUST have one of the following methods. Each method MUST accept the
+listed parameters and return an appropriate value:
 
     put_file(path, tmp_file_path)
     - an integer indicating the number of bytes received or False if there
