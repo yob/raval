@@ -163,11 +163,11 @@ module FTP
       host = nums[0..3].join('.')
       close_datasocket
 
-      puts "connecting to client #{host} on #{port}"
-      @datasocket = ActiveSocket.new(host, port)
+      @datasocket = ActiveSocket.new(host, port) do
+        @connection.send_response(200, "Connection established (#{port})")
+      end
+      @datasocket.async.run
 
-      puts "Opened active connection at #{host}:#{port}"
-      @connection.send_response(200, "Connection established (#{port})")
     rescue => e
       puts "Error opening data connection to #{host}:#{port}"
       puts e.inspect
@@ -400,27 +400,29 @@ module FTP
     # send data to the client across the data socket.
     #
     def send_outofband_data(data)
-      if @datasocket.nil?
-        @connection.send_response(425, "Error establishing connection")
-        return
-      end
-
-      if data.is_a?(Array)
-        data = data.join(LBRK) << LBRK
-      end
-      data = StringIO.new(data) if data.kind_of?(String)
-
-      # blocks until all data is sent
-      begin
-        bytes = 0
-        data.each do |line|
-          @datasocket.write(line)
-          bytes += line.bytesize
+      wait_for_datasocket do |datasocket|
+        if datasocket.nil?
+          @connection.send_response(425, "Error establishing connection")
+          return
         end
-        @connection.send_response(226, "Closing data connection, sent #{bytes} bytes")
-      ensure
-        close_datasocket
-        data.close if data.respond_to?(:close)
+
+        if data.is_a?(Array)
+          data = data.join(LBRK) << LBRK
+        end
+        data = StringIO.new(data) if data.kind_of?(String)
+
+        # blocks until all data is sent
+        begin
+          bytes = 0
+          data.each do |line|
+            datasocket.write(line)
+            bytes += line.bytesize
+          end
+          @connection.send_response(226, "Closing data connection, sent #{bytes} bytes")
+        ensure
+          close_datasocket
+          data.close if data.respond_to?(:close)
+        end
       end
     end
 
@@ -454,6 +456,20 @@ module FTP
       #end
     end
 
+    # waits for the data socket to be established
+    def wait_for_datasocket(interval = 0.1, &block)
+      if (@datasocket.nil? || !@datasocket.connected?) && interval < 5
+        sleep interval
+        wait_for_datasocket(interval * 2, &block)
+        return
+      end
+      if @datasocket.connected?
+        yield @datasocket
+      else
+        yield nil
+      end
+    end
+
     def logged_in?
       @user.nil? ? false : true
     end
@@ -480,11 +496,30 @@ module FTP
   end
 
   class ActiveSocket
-    def initialize(host, port)
-      puts "connected to #{host}:#{port}"
-      @socket = TCPSocket.new(host, port)
+    include Celluloid::IO
+
+    def initialize(host, port, &block)
+      @host, @port = host, port
       @on_receive = nil
       @on_close = nil
+      @on_connect = block
+    end
+
+    def run
+      @socket = ::TCPSocket.new(@host, @port)
+      @on_connect.call
+      loop do
+        if @on_receive
+          @on_receive.call(@socket.readpartial(4096))
+        end
+        sleep 1 if @on_receive.nil?
+      end
+    rescue EOFError
+      close
+    end
+
+    def connected?
+      @socket != nil
     end
 
     def on_close(&block)
