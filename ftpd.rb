@@ -150,6 +150,28 @@ module FTP
       end
     end
 
+    # Passive FTP. At the clients request, listen on a port for an incoming
+    # data connection. The listening socket is opened on a random port, so
+    # the host and port is sent back to the client on the control socket.
+    #
+    def cmd_pasv(param)
+      send_unauthorised and return unless logged_in?
+
+      host, port = start_passive_socket
+
+      p1, p2 = *port.divmod(256)
+
+      @connection.send_response(227, "Entering Passive Mode (" + host.split(".").join(",") + ",#{p1},#{p2})")
+    end
+
+    # listen on a port, see RFC 2428
+    #
+    def cmd_epsv(param)
+      host, port = start_passive_socket
+
+      send_response "229 Entering Extended Passive Mode (|||#{port}|)"
+    end
+
     # Active FTP. An alternative to Passive FTP. The client has a listening socket
     # open, waiting for us to connect and establish a data socket. Attempt to
     # open a connection to the host and port they specify and save the connection,
@@ -339,7 +361,6 @@ module FTP
       send_param_required and return if param.nil?
 
       path = build_path(param)
-      @datasocket.async.connect
 
       if @driver.respond_to?(:put_file_streamed)
         cmd_stor_streamed(path)
@@ -419,11 +440,24 @@ module FTP
             bytes += line.bytesize
           end
           @connection.send_response(226, "Closing data connection, sent #{bytes} bytes")
+        rescue => e
+          puts e.inspect
         ensure
           close_datasocket
           data.close if data.respond_to?(:close)
         end
       end
+    end
+
+    def start_passive_socket
+      # close any existing data socket
+      close_datasocket
+
+      # open a listening socket on the appropriate host
+      # and on a random port
+      @datasocket = PassiveSocket.new(@connection.myhost)
+
+      [@connection.myhost, @datasocket.port]
     end
 
     # split a client's request into command and parameter components
@@ -532,15 +566,75 @@ module FTP
     end
   end
 
+  class PassiveSocket
+    include Celluloid::IO
+
+    attr_reader :port
+
+    def initialize(host)
+      @host = host
+      @socket = nil
+      puts "*** Starting passive socket on #{host}"
+
+      # TODO ::TcpServer#addr exists, but Celluloid::IO::TcpServer#addr does
+      #      not. Once that's fixed, make this port random by replacing 30000
+      #      with 0
+      @server = TCPServer.new(@host, 30000)
+      #@port = @server.addr[1]
+      @port = 30000
+      run!
+    end
+
+    def run
+      handle_connection @server.accept
+    end
+
+    def read
+      raise "socket not connected" unless @socket
+      @socket.readpartial(4096)
+    rescue EOFError, Errno::ECONNRESET
+      close
+      nil
+    end
+
+    def write(data)
+      raise "socket not connected" unless @socket
+      @socket.write(data)
+    end
+
+    def connected?
+      @socket != nil
+    end
+
+    def close
+      @socket.close if @socket
+      @socket = nil
+      @server.close if @server
+      @server = nil
+    end
+
+    private
+
+    def handle_connection(socket)
+      @socket = socket
+      @server.close
+      @server = nil
+    rescue EOFError, IOError
+      puts "*** passive socket disconnected"
+    end
+  end
+
   class Connection
 
     BUFFER_SIZE = 1024
 
-    attr_reader :port, :host
+    attr_reader :port,   :host
+    attr_reader :myport, :myhost
 
     def initialize(handler, socket)
       @socket, @handler = socket, handler
       _, @port, @host = socket.peeraddr
+      _, @myport, @myhost = socket.addr
       handler.new_connection(self)
       puts "*** Received connection from #{host}:#{port}"
     end
