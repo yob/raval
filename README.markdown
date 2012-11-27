@@ -1,4 +1,4 @@
-= FTPd
+# FTPd
 
 An experimental FTP server framework built on top of Celluloid. Celluloid is a
 concurrency library that uses threads, so you will get the best results by
@@ -19,18 +19,18 @@ Some sample use cases include persisting data to:
 
 The examples directory contains a demonstration of in memory persistence.
 
-== Installation
+## Installation
 
    None yet
 
-== Usage
+## Usage
 
 To boot an FTP server you will need to provide a driver that speaks to your
 persistence layer.
 
     TODO: example code for booting a new server
 
-== The Driver Contract
+## The Driver Contract
 
 The driver MUST have the following methods. Each method MUST return the
 required value.
@@ -79,28 +79,28 @@ block and yield the appropriate value:
     - an integer indicating the number of bytes received or False if there
       was an error
 
-== Authors
+## Authors
 
 * James Healy <james@yob.id.au> [http://www.yob.id.au](http://www.yob.id.au)
 * John Nunemaker <nunemaker@gmail.com>
 * Elijah Miller <elijah.miller@gmail.com>
 
-== Warning
+## Warning
 
 FTP is an incredibly insecure protocol. Be careful about forcing users to authenticate
 with a username or password that are important.
 
-== License
+## License
 
 This library is distributed under the terms of the MIT License. See the included file for
 more detail.
 
-== Contributing
+## Contributing
 
 All suggestions and patches welcome, preferably via a git repository I can pull from.
 If this library proves useful to you, please let me know.
 
-== Further Reading
+## Further Reading
 
 There are a range of RFCs that together specify the FTP protocol. In chronological
 order, the more useful ones are:
