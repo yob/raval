@@ -291,7 +291,7 @@ module FTP
 
       io = @driver.get_file(path)
       if io
-        @connection.send_response(150, "Data transfer starting #{data.size} bytes")
+        @connection.send_response(150, "Data transfer starting #{io.size} bytes")
         send_outofband_data(io)
       else
         @connection.send_response(551, "file not available")
