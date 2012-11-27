@@ -458,7 +458,7 @@ module FTP
 
     # waits for the data socket to be established
     def wait_for_datasocket(interval = 0.1, &block)
-      if (@datasocket.nil? || !@datasocket.connected?) && interval < 5
+      if (@datasocket.nil? || !@datasocket.connected?) && interval < 25
         sleep interval
         wait_for_datasocket(interval * 2, &block)
         return
