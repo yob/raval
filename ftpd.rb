@@ -443,6 +443,7 @@ module FTP
     def close_datasocket
       if @datasocket
         @datasocket.close
+        @datasocket.terminate
         @datasocket = nil
       end
 
