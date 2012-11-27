@@ -378,6 +378,7 @@ module FTP
         else
           send_action_not_taken
         end
+        tmpfile.close
         tmpfile.unlink
       end
       @connection.send_response(150, "Data transfer starting")
