@@ -127,3 +127,7 @@ For more information on Celluloid, a library that (among other things) simplifie
 writing applications that use sockets, check out their website.
 
 * [http://celluloid.io/](http://celluloid.io/)
+
+This library is heavily based on [em-ftpd](https://github.com/yob/em-ftpd), an FTPd
+framework with similar design goals within the EventMachine ecosystem. It worked well
+enough, but you know, callbacks and event loops make me something something.
