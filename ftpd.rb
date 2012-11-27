@@ -372,12 +372,11 @@ module FTP
       end
       @datasocket.on_close do
         tmpfile.flush
-        @driver.put_file(target_path, tmpfile.path) do |bytes|
-          if bytes
-            @connection.send_response(200, "OK, received #{bytes} bytes")
-          else
-            send_action_not_taken
-          end
+        bytes = @driver.put_file(target_path, tmpfile.path)
+        if bytes
+          @connection.send_response(200, "OK, received #{bytes} bytes")
+        else
+          send_action_not_taken
         end
         tmpfile.unlink
       end
