@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">=1.9.2"
 
   spec.add_development_dependency("rake")
+  spec.add_development_dependency("rdoc")
   spec.add_development_dependency("rspec", "~>2.6")
 
   spec.add_dependency('celluloid-io')
