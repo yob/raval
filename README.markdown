@@ -26,9 +26,19 @@ The examples directory contains a demonstration of in memory persistence.
 ## Usage
 
 To boot an FTP server you will need to provide a driver that speaks to your
-persistence layer.
+persistence layer - the required driver contract is listed below.
 
-    TODO: example code for booting a new server
+Once that's ready, boot a new server like so:
+
+    class MyDriver
+      .. implementation here ..
+    end
+
+    FTPD::Server.supervise("127.0.0.1","3000", MyDriver)
+
+To get started quickly, try out the example in the git repo like so:
+
+    ruby -Ilib examples/fake.rb
 
 ## The Driver Contract
 
