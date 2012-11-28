@@ -12,7 +12,7 @@ module FTPD
                   list size syst mkd pass xcup xpwd xcwd xrmd rest allo nlst
                   pasv epsv help noop mode rnfr rnto stru feat]
 
-    attr_reader :name_prefix
+    attr_reader :connection, :name_prefix
 
     def initialize(driver)
       @driver = driver
@@ -51,7 +51,7 @@ module FTPD
       commands.sort.each_slice(3) { |slice|
         str += "     " + slice.join("\t\t") + FTPD::LBRK
       }
-      @connection.send_data(str)
+      @connection.send_response(str, "")
       @connection.send_response(214, "End of list.")
     end
 
@@ -250,7 +250,7 @@ module FTPD
       send_param_required and return if param.nil?
 
       if @driver.delete_dir(build_path(param))
-        @connection.send_response "250 Directory deleted."
+        @connection.send_response(250, "Directory deleted.")
       else
         send_action_not_taken
       end
