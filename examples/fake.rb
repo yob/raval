@@ -2,9 +2,14 @@
 
 # a super simple FTP server with hard coded auth details and only two files
 # available for download.
+#
+# The try it out, run this:
+#
+#     ruby -Ilib examples/fake.rb
 
 require 'ostruct'
 require 'stringio'
+require 'ftpd'
 
 class FakeFTPDriver
   FILE_ONE = "This is the first file available for download.\n\nBy James"
@@ -77,4 +82,10 @@ class FakeFTPDriver
     OpenStruct.new(:name => name, :directory => false, :size => bytes)
   end
 
+end
+
+FTPD::Server.supervise("127.0.0.1","3000", FakeFTPDriver)
+
+while true
+  sleep 5
 end
