@@ -20,6 +20,7 @@ module FTP
 
     def new_connection(connection)
       @mode   = :binary
+      @user   = nil
       @name_prefix = "/"
       @connection = connection
       @connection.send_response(220, "FTP server (celluloid-ftpd) ready")
