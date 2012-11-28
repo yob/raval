@@ -37,7 +37,7 @@ module FTPD
         if match
           line  = match[1]
           input = input[line.bytesize, line.bytesize]
-          @handler.recv_line(line)
+          @handler.receive_line(line)
         end
       end
     end

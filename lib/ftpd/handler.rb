@@ -24,7 +24,7 @@ module FTPD
       @connection.send_response(220, "FTP server (celluloid-ftpd) ready")
     end
 
-    def recv_line(line)
+    def receive_line(line)
       cmd, param = parse_request(line)
 
       # if the command is contained in the whitelist, and there is a method
