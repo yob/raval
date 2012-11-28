@@ -388,22 +388,22 @@ module FTP
     end
 
     def cmd_stor_tempfile(target_path)
-      tmpfile = Tempfile.new("celluloid-ftpd")
-      tmpfile.binmode
+      Tempfile.open("celluloid-ftpd") do |tmpfile|
+        tmpfile.binmode
 
-      @connection.send_response(150, "Data transfer starting")
-      while chunk = @datasocket.read
-        tmpfile.write(chunk)
+        @connection.send_response(150, "Data transfer starting")
+        while chunk = @datasocket.read
+          tmpfile.write(chunk)
+        end
+        tmpfile.flush
+        tmpfile.close
+        bytes = @driver.put_file(target_path, tmpfile.path)
+        if bytes
+          @connection.send_response(200, "OK, received #{bytes} bytes")
+        else
+          send_action_not_taken
+        end
       end
-      tmpfile.flush
-      bytes = @driver.put_file(target_path, tmpfile.path)
-      if bytes
-        @connection.send_response(200, "OK, received #{bytes} bytes")
-      else
-        send_action_not_taken
-      end
-      tmpfile.close
-      tmpfile.unlink
     end
 
     private
