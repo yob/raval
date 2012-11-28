@@ -12,6 +12,8 @@ module FTPD
                   list size syst mkd pass xcup xpwd xcwd xrmd rest allo nlst
                   pasv epsv help noop mode rnfr rnto stru feat]
 
+    attr_reader :name_prefix
+
     def initialize(driver)
       @driver = driver
     end
