@@ -6,6 +6,13 @@ require 'stringio'
 require 'tempfile'
 
 module FTPD
+  # implement the FTP wire protocol, deferring the users driver when interaction
+  # with the persistence layer is required. Nothing in this class is network
+  # aware, it should remain ignorant of where the FTP connection is from and
+  # assume the connection will handle it.
+  #
+  # A new instance of this class is created for each active FTP connection, so
+  # it's OK to store connection specific state in instance variables.
   class Handler
 
     COMMANDS = %w[quit type user retr stor eprt port cdup cwd dele rmd pwd

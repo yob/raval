@@ -1,6 +1,10 @@
 # coding: utf-8
 
 module FTPD
+  # wraps a raw TCP socket and simplifies working with FTP style data.
+  #
+  # FTP commands and responses are always a single line ending in a line break,
+  # so make it easy to read and write single lines.
   class Connection
 
     BUFFER_SIZE = 1024

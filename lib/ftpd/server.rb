@@ -5,6 +5,8 @@ require 'ftpd/handler'
 require 'ftpd/connection'
 
 module FTPD
+  # The beginning of things. Listens on a TCP socket for incoming connections
+  # and spins off a new agent to handle each connection.
   class Server
     include Celluloid::IO
 

@@ -3,6 +3,12 @@
 require 'celluloid/io'
 
 module FTPD
+  # In passive FTP mode, the server opens a listening data socket and the client
+  # will connect to it.
+  #
+  # A different class is used when operating in active FTP mode. They both
+  # have a #read and #write method, so the quack like each other in the ways
+  # that matter.
   class PassiveSocket
     include Celluloid::IO
 
