@@ -182,25 +182,27 @@ module FTPD
       port = nums[4].to_i * 256 + nums[5].to_i
       host = nums[0..3].join('.')
       close_datasocket
+      start_active_socket(host, port)
+    end
 
-      @datasocket = ActiveSocket.new(host, port)
-      @datasocket.async.connect
-      wait_for_datasocket do
-        @connection.send_response(200, "Connection established (#{port})")
+    # open a data connection to the client on the requested port. See RFC 2428
+    def cmd_eprt(param)
+      delim = param[0,1]
+      m, af, host, port = *param.match(/#{delim}(.+?)#{delim}(.+?)#{delim}(.+?)#{delim}/)
+      port = port.to_i
+      close_datasocket
+
+      if af.to_i != 1 && ad.to_i != 2
+        @connection.send_response(522, "Network protocol not supported, use (1,2)")
+      else
+        start_active_socket(host, port)
       end
-
-    rescue => e
-      puts "Error opening data connection to #{host}:#{port}"
-      puts e.inspect
-      @connection.send_response(425, "Data connection failed")
     end
 
     # go up a directory, really just an alias
     def cmd_cdup(param)
       cmd_cwd("..")
     end
-
-    # As per RFC1123, XCUP is a synonym for CDUP
     alias cmd_xcup cmd_cdup
 
     # change directory
@@ -429,6 +431,21 @@ module FTPD
           data.close if data.respond_to?(:close)
         end
       end
+    end
+
+    def start_active_socket(host, port)
+      # close any existing data socket
+      close_datasocket
+
+      @datasocket = ActiveSocket.new(host, port)
+      @datasocket.async.connect
+      wait_for_datasocket do
+        @connection.send_response(200, "Connection established (#{port})")
+      end
+    rescue => e
+      puts "Error opening data connection to #{host}:#{port}"
+      puts e.inspect
+      @connection.send_response(425, "Data connection failed")
     end
 
     def start_passive_socket
