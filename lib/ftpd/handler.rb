@@ -373,7 +373,7 @@ module FTPD
         @connection.send_response(150, "Data transfer starting")
         @driver.put_file_streamed(target_path, @datasocket) do |bytes|
           if bytes
-            @connection.send_response(200, "OK, received #{bytes} bytes")
+            @connection.send_response(226, "OK, received #{bytes} bytes")
           else
             send_action_not_taken
           end
@@ -395,7 +395,7 @@ module FTPD
         tmpfile.close
         bytes = @driver.put_file(target_path, tmpfile.path)
         if bytes
-          @connection.send_response(200, "OK, received #{bytes} bytes")
+          @connection.send_response(226, "OK, received #{bytes} bytes")
         else
           send_action_not_taken
         end
