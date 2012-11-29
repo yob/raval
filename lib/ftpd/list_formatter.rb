@@ -19,8 +19,15 @@ module FTPD
     def detailed
       now = Time.now
       @files.map { |item|
-        sizestr = (item.size || 0).to_s.rjust(12)
-        "#{item.directory ? 'd' : '-'}#{item.permissions || 'rwxrwxrwx'} 1 #{item.owner || 'owner'}  #{item.group || 'group'} #{sizestr} #{(item.time || now).strftime("%b %d %H:%M")} #{item.name}"
+        directory   = item.directory ? 'd' : '-'
+        permissions = item.permissions || 'rwxrwxrwx'
+        owner       = item.owner || 'owner'
+        group       = item.group || 'group'
+        size        = (item.size || 0).to_s.rjust(12)
+        time        = (item.time || now).strftime("%b %d %H:%M")
+        name        = item.name || "UNKNOWN"
+
+        "#{directory}#{permissions} 1 #{owner}  #{group} #{size} #{time} #{name}"
       }
     end
 
