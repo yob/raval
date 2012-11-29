@@ -10,7 +10,7 @@ module FTPD
 
     COMMANDS = %w[quit type user retr stor eprt port cdup cwd dele rmd pwd
                   list size syst mkd pass xcup xpwd xcwd xrmd rest allo nlst
-                  pasv epsv help noop mode rnfr rnto stru feat mdtm]
+                  pasv epsv help noop mode rnfr rnto stru mdtm]
 
     REQUIRE_AUTH  = %w[cdup xcup cwd xcwd eprt epsv mode nlst list mdtm pasv port
                        pwd xpwd retr size stor stru syst type]
