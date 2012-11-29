@@ -267,114 +267,39 @@ describe FTPD::Handler, "HELP" do
   end
 end
 
-=begin
+# TODO: nlist
+
 describe FTPD::Handler, "LIST" do
-  # TODO: nlist
-
-  before(:each) do
-    subject = FTPD::Handler.new(TestDriver.new)
-  end
-  let!(:root_files) {
-    timestr = Time.now.strftime("%b %d %H:%M")
-    [
-      "drwxr-xr-x 1 owner  group            0 #{timestr} .",
-      "drwxr-xr-x 1 owner  group            0 #{timestr} ..",
-      "drwxr-xr-x 1 owner  group            0 #{timestr} files",
-      "-rwxr-xr-x 1 owner  group           56 #{timestr} one.txt"
-    ]
-  }
-  let!(:dir_files) {
-    timestr = Time.now.strftime("%b %d %H:%M")
-    [
-      "drwxr-xr-x 1 owner  group            0 #{timestr} .",
-      "drwxr-xr-x 1 owner  group            0 #{timestr} ..",
-      "-rwxr-xr-x 1 owner  group           40 #{timestr} two.txt"
-    ]
-  }
-
-  it "should respond with 530 when called by non-logged in user" do
-    subject.reset_sent!
-    subject.receive_line("LIST")
-    subject.sent_data.should match(/530.+/)
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+    it "should respond with 530" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("LIST")
+    end
   end
 
-  it "should respond with 150 ...425  when called with no data socket" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.reset_sent!
-    subject.receive_line("LIST")
-    subject.sent_data.should match(/150.+425.+/m)
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should respond with 150 ...425  when called with no data socket"
+
+    it "should respond with 150 ... 226 when called in the root dir with no param"
+
+    it "should respond with 150 ... 226 when called in the files dir with no param"
+
+    it "should respond with 150 ... 226 when called in the files dir with wildcard (LIST *.txt)"
+
+    it "should respond with 150 ... 226 when called in the subdir with .. param"
+
+    it "should respond with 150 ... 226 when called in the subdir with / param"
+
+    it "should respond with 150 ... 226 when called in the root with files param"
+
+    it "should respond with 150 ... 226 when called in the root with files/ param"
+
+    it "should properly list subdirs etc."
   end
-
-  it "should respond with 150 ... 226 when called in the root dir with no param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(root_files)
-  end
-
-  it "should respond with 150 ... 226 when called in the files dir with no param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("CWD files")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(dir_files)
-  end
-
-  it "should respond with 150 ... 226 when called in the files dir with wildcard (LIST *.txt)"
-
-  it "should respond with 150 ... 226 when called in the subdir with .. param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("CWD files")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST ..")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(root_files)
-  end
-
-  it "should respond with 150 ... 226 when called in the subdir with / param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("CWD files")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST /")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(root_files)
-  end
-
-  it "should respond with 150 ... 226 when called in the root with files param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST files")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(dir_files)
-  end
-
-  it "should respond with 150 ... 226 when called in the root with files/ param" do
-    subject.receive_line("USER test")
-    subject.receive_line("PASS 1234")
-    subject.receive_line("PASV")
-    subject.reset_sent!
-    subject.receive_line("LIST files/")
-    subject.sent_data.should match(/150.+226.+/m)
-    subject.oobdata.split(FTPD::Handler::LBRK).should eql(dir_files)
-  end
-
-  it "should properly list subdirs etc."
-
 end
-=end
 
 describe FTPD::Handler, "MKD" do
   context "with an unauthenticated user" do
