@@ -2,6 +2,7 @@
 
 require 'ftpd/active_socket'
 require 'ftpd/passive_socket'
+require 'ftpd/list_formatter'
 require 'stringio'
 require 'tempfile'
 
@@ -272,8 +273,9 @@ module FTPD
     def cmd_nlst(param)
       @connection.send_response(150, "Opening ASCII mode data connection for file list")
 
-      files = @driver.dir_contents(build_path(param)).map(&:name)
-      send_outofband_data(files)
+      files = @driver.dir_contents(build_path(param))
+      formatter = ListFormatter.new(files)
+      send_outofband_data(formatter.short)
     end
 
     # return a detailed list of files and directories
@@ -283,12 +285,8 @@ module FTPD
       param = '' if param.to_s == '-a'
 
       files = @driver.dir_contents(build_path(param))
-      now = Time.now
-      lines = files.map { |item|
-        sizestr = (item.size || 0).to_s.rjust(12)
-        "#{item.directory ? 'd' : '-'}#{item.permissions || 'rwxrwxrwx'} 1 #{item.owner || 'owner'}  #{item.group || 'group'} #{sizestr} #{(item.time || now).strftime("%b %d %H:%M")} #{item.name}"
-      }
-      send_outofband_data(lines)
+      formatter = ListFormatter.new(files)
+      send_outofband_data(formatter.detailed)
     end
 
     # delete a file
