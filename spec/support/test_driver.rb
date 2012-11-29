@@ -37,6 +37,15 @@ class TestDriver
     end
   end
 
+  def modified_time(path)
+    case path
+    when "/one.txt"       then Time.mktime(2012,10,10,10,10)
+    when "/files/two.txt" then Time.mktime(2012,11,11,11,11)
+    else
+      false
+    end
+  end
+
   def get_file(path)
     case path
     when "/one.txt"       then StringIO.new(FILE_ONE)

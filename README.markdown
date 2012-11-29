@@ -52,6 +52,10 @@ parameters and return an appropriate value:
     - an integer with the number of bytes in the file or nil if the file
       doesn't exist
 
+    modified_time(path)
+    - a Time-ish object indicating when the requested path was last modified, or
+      nil if the file doesn't exist
+
     change_dir(path)
     - a boolen indicating if the current user is permitted to change to the
       requested path

@@ -10,7 +10,7 @@ module FTPD
 
     COMMANDS = %w[quit type user retr stor eprt port cdup cwd dele rmd pwd
                   list size syst mkd pass xcup xpwd xcwd xrmd rest allo nlst
-                  pasv epsv help noop mode rnfr rnto stru feat]
+                  pasv epsv help noop mode rnfr rnto stru feat mdtm]
 
     REQUIRE_AUTH  = %w[cdup xcup cwd xcwd eprt epsv mode nlst list mdtm pasv port
                        pwd xpwd retr size stor stru syst type]
@@ -339,6 +339,17 @@ module FTPD
       bytes = @driver.bytes(build_path(param))
       if bytes
         @connection.send_response(213, bytes)
+      else
+        @connection.send_response(450, "file not available")
+      end
+    end
+
+    # return the last modified time of a file
+    #
+    def cmd_mdtm(param)
+      time = @driver.modified_time(build_path(param))
+      if time
+        @connection.send_response(213, "#{time.strftime("%Y%m%d%H%M%S")}")
       else
         @connection.send_response(450, "file not available")
       end

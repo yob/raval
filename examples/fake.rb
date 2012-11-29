@@ -43,6 +43,15 @@ class FakeFTPDriver
     end
   end
 
+  def modified_time(path)
+    case path
+    when "/one.txt"       then Time.now
+    when "/files/two.txt" then Time.now - 10000
+    else
+      false
+    end
+  end
+
   def get_file(path)
     case path
     when "/one.txt"       then StringIO.new(FILE_ONE)

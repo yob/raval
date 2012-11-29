@@ -668,6 +668,46 @@ describe FTPD::Handler, "SIZE" do
   end
 end
 
+describe FTPD::Handler, "MDTM" do
+
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("MDTM one.txt")
+    end
+  end
+
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+    it "should always respond with 553 when called with no param" do
+      subject.connection.should_receive(:send_response).with(553, anything).and_return(553)
+      subject.receive_line("MDTM")
+    end
+
+    it "should always respond with 450 when called with a directory param" do
+      subject.connection.should_receive(:send_response).with(450, anything).and_return(450)
+      subject.receive_line("MDTM files")
+    end
+
+    it "should always respond with 450 when called with a non-file param" do
+      subject.connection.should_receive(:send_response).with(450, anything).and_return(450)
+      subject.receive_line("MDTM blah")
+    end
+
+    it "should always respond with 213 when called with a valid file param" do
+      subject.connection.should_receive(:send_response).with(213, "20121010101000").and_return(213)
+      subject.receive_line("MDTM one.txt")
+    end
+
+    it "should always respond with 213 when called with a valid file param" do
+      subject.connection.should_receive(:send_response).with(213, "20121111111100").and_return(213)
+      subject.receive_line("MDTM files/two.txt")
+    end
+  end
+end
+
 # TODO STOR
 
 describe FTPD::Handler, "STRU" do
