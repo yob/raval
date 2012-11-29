@@ -33,6 +33,15 @@ describe FTPD::ListFormatter, "initialisation" do
       }.should_not raise_error(ArgumentError)
     end
   end
+  context "with a string" do
+    let!(:files) { ["foo"] }
+
+    it "should raise an exception" do
+      lambda {
+        FTPD::ListFormatter.new(files)
+      }.should raise_error(ArgumentError)
+    end
+  end
 
 end
 
