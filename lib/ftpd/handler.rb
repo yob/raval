@@ -168,8 +168,11 @@ module FTPD
       host, port = start_passive_socket
 
       p1, p2 = *port.divmod(256)
+      host_with_commas = host.split(".").join(",")
+      port_with_commas = "#{p1},#{p2}"
+      message = "Entering Passive Mode (#{host_with_commas},#{port_with_commas})"
 
-      @connection.send_response(227, "Entering Passive Mode (" + host.split(".").join(",") + ",#{p1},#{p2})")
+      @connection.send_response(227, message)
     end
 
     # listen on a port, see RFC 2428
