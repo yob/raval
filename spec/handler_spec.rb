@@ -399,7 +399,69 @@ describe FTPD::Handler, "NOOP" do
   end
 end
 
-# TODO PASV
+describe FTPD::Handler, "PASV" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530 when called by user not logged in" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("PASV")
+    end
+  end
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should always respond with 227 after opening the new socket"
+  end
+end
+
+describe FTPD::Handler, "EPSV" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530 when called by user not logged in" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("EPSV")
+    end
+  end
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should always respond with 229 after opening the new socket"
+  end
+end
+
+describe FTPD::Handler, "PORT" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530 when called by user not logged in" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("PORT 127,0,0,1,128,12")
+    end
+  end
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should always respond with 200 after opening the new socket"
+  end
+end
+
+describe FTPD::Handler, "EPRT" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530 when called by user not logged in" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("EPRT -1-127.0.0.1-32000")
+    end
+  end
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should always respond with 200 after opening the new socket"
+  end
+end
 
 %w(PWD XPWD).each do |command|
   describe FTPD::Handler, command do
@@ -664,7 +726,26 @@ describe FTPD::Handler, "MDTM" do
   end
 end
 
-# TODO STOR
+describe FTPD::Handler, "STOR" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+
+    it "should always respond with 530 when called by user not logged in" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("STOR blah.txt")
+    end
+  end
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should respond with 553 when called with no param" do
+      subject.connection.should_receive(:send_response).with(553, anything).and_return(553)
+      subject.receive_line("STOR")
+    end
+
+    it "should respond with 150...206 after a successful transfer"
+  end
+end
 
 describe FTPD::Handler, "STRU" do
   context "with an unauthenticated user" do
