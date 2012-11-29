@@ -12,6 +12,11 @@ module FTPD
                   list size syst mkd pass xcup xpwd xcwd xrmd rest allo nlst
                   pasv epsv help noop mode rnfr rnto stru feat]
 
+    REQUIRE_AUTH  = %w[cdup xcup cwd xcwd eprt epsv mode nlst list mdtm pasv port
+                       pwd xpwd retr size stor stru syst type]
+    REQUIRE_PARAM = %w[cwd xcwd eprt mdtm mode pass port retr size stor stru
+                       type user]
+
     attr_reader :connection, :name_prefix
 
     def initialize(driver)
@@ -32,7 +37,11 @@ module FTPD
       # if the command is contained in the whitelist, and there is a method
       # to handle it, call it. Otherwise send an appropriate response to the
       # client
-      if COMMANDS.include?(cmd) && self.respond_to?("cmd_#{cmd}".to_sym, true)
+      if REQUIRE_AUTH.include?(cmd) && !logged_in?
+        @connection.send_response(530, "Not logged in")
+      elsif REQUIRE_PARAM.include?(cmd) && param.nil?
+        @connection.send_response(553, "action aborted, required param missing")
+      elsif COMMANDS.include?(cmd) && self.respond_to?("cmd_#{cmd}".to_sym, true)
         self.__send__("cmd_#{cmd}".to_sym, param)
       else
         @connection.send_response(500, "Sorry, I don't understand #{cmd.upcase}")
@@ -63,8 +72,6 @@ module FTPD
     # socket unchanged.
     #
     def cmd_mode(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
       if param.upcase.eql?("S")
         @connection.send_response(200, "OK")
       else
@@ -91,8 +98,6 @@ module FTPD
     # These days files are sent unmodified, and F(ile) mode is the only one we
     # really need to support.
     def cmd_stru(param)
-      send_param_required and return if param.nil?
-      send_unauthorised and return unless logged_in?
       if param.upcase.eql?("F")
         @connection.send_response(200, "OK")
       else
@@ -102,7 +107,6 @@ module FTPD
 
     # return the name of the server
     def cmd_syst(param)
-      send_unauthorised and return unless logged_in?
       @connection.send_response(215, "UNIX Type: L8")
     end
 
@@ -115,8 +119,6 @@ module FTPD
     # adequate. The RFC requires we accept ASCII mode however, so accept it, but
     # ignore it.
     def cmd_type(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
       if param.upcase.eql?("A")
         @connection.send_response(200, "Type set to ASCII")
       elsif param.upcase.eql?("I")
@@ -130,7 +132,6 @@ module FTPD
     # we simply store the requested user name as an instance variable
     # and wait for the password to be submitted before doing anything
     def cmd_user(param)
-      send_param_required and return if param.nil?
       @connection.send_response(500, "Already logged in") and return unless @user.nil?
       @requested_user = param
       @connection.send_response(331, "OK, password required")
@@ -139,7 +140,6 @@ module FTPD
     # handle the PASS FTP command. This is the second stage of a user logging in
     def cmd_pass(param)
       @connection.send_response(202, "User already logged in") and return unless @user.nil?
-      send_param_required and return if param.nil?
       @connection.send_response(530, "password with no username") and return if @requested_user.nil?
 
       if @driver.authenticate(@requested_user, param)
@@ -158,8 +158,6 @@ module FTPD
     # the host and port is sent back to the client on the control socket.
     #
     def cmd_pasv(param)
-      send_unauthorised and return unless logged_in?
-
       host, port = start_passive_socket
 
       p1, p2 = *port.divmod(256)
@@ -180,9 +178,6 @@ module FTPD
     # open a connection to the host and port they specify and save the connection,
     # ready for either end to send something down it.
     def cmd_port(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
-
       nums = param.split(',')
       port = nums[4].to_i * 256 + nums[5].to_i
       host = nums[0..3].join('.')
@@ -202,7 +197,6 @@ module FTPD
 
     # go up a directory, really just an alias
     def cmd_cdup(param)
-      send_unauthorised and return unless logged_in?
       cmd_cwd("..")
     end
 
@@ -211,7 +205,6 @@ module FTPD
 
     # change directory
     def cmd_cwd(param)
-      send_unauthorised and return unless logged_in?
       path = build_path(param)
 
       if @driver.change_dir(path)
@@ -239,7 +232,6 @@ module FTPD
 
     # return the current directory
     def cmd_pwd(param)
-      send_unauthorised and return unless logged_in?
       @connection.send_response(257, "\"#{@name_prefix}\" is the current directory")
     end
 
@@ -266,7 +258,6 @@ module FTPD
     # to the client over a data socket.
     #
     def cmd_nlst(param)
-      send_unauthorised and return unless logged_in?
       @connection.send_response(150, "Opening ASCII mode data connection for file list")
 
       files = @driver.dir_contents(build_path(param)).map(&:name)
@@ -275,7 +266,6 @@ module FTPD
 
     # return a detailed list of files and directories
     def cmd_list(param)
-      send_unauthorised and return unless logged_in?
       @connection.send_response(150, "Opening ASCII mode data connection for file list")
 
       param = '' if param.to_s == '-a'
@@ -310,9 +300,6 @@ module FTPD
 
     # send a file to the client
     def cmd_retr(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
-
       path = build_path(param)
 
       io = @driver.get_file(path)
@@ -347,9 +334,6 @@ module FTPD
 
     # return the size of a file in bytes
     def cmd_size(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
-
       bytes = @driver.bytes(build_path(param))
       if bytes
         @connection.send_response(213, bytes)
@@ -360,9 +344,6 @@ module FTPD
 
     # save a file from a client
     def cmd_stor(param)
-      send_unauthorised and return unless logged_in?
-      send_param_required and return if param.nil?
-
       path = build_path(param)
 
       if @driver.respond_to?(:put_file_streamed)
