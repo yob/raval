@@ -267,7 +267,37 @@ describe FTPD::Handler, "HELP" do
   end
 end
 
-# TODO: nlist
+describe FTPD::Handler, "NLST" do
+  context "with an unauthenticated user" do
+    subject { handler_with_unauthenticated_user }
+    it "should respond with 530" do
+      subject.connection.should_receive(:send_response).with(530, anything).and_return(530)
+      subject.receive_line("NLST")
+    end
+  end
+
+  context "with an authenticated user" do
+    subject { handler_with_authenticated_user }
+
+    it "should respond with 150 ...425  when called with no data socket"
+
+    it "should respond with 150 ... 226 when called in the root dir with no param"
+
+    it "should respond with 150 ... 226 when called in the files dir with no param"
+
+    it "should respond with 150 ... 226 when called in the files dir with wildcard (LIST *.txt)"
+
+    it "should respond with 150 ... 226 when called in the subdir with .. param"
+
+    it "should respond with 150 ... 226 when called in the subdir with / param"
+
+    it "should respond with 150 ... 226 when called in the root with files param"
+
+    it "should respond with 150 ... 226 when called in the root with files/ param"
+
+    it "should properly list subdirs etc."
+  end
+end
 
 describe FTPD::Handler, "LIST" do
   context "with an unauthenticated user" do
