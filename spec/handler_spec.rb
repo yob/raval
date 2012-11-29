@@ -465,8 +465,9 @@ end
       end
 
       it 'should always respond with 257 "/files" when called from files dir' do
-        subject.connection.should_receive(:send_response).with(250, anything).and_return(250)
-        subject.connection.should_receive(:send_response).with(257, '"/files" is the current directory')
+        connection = subject.connection
+        connection.should_receive(:send_response).with(250, anything).and_return(250)
+        connection.should_receive(:send_response).with(257, '"/files" is the current directory')
         subject.receive_line("CWD files")
         subject.receive_line(command)
       end
