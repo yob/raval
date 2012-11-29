@@ -39,6 +39,8 @@ module FTPD
       end
     end
 
+    private
+
     def cmd_allo(param)
       @connection.send_response(202, "Obsolete")
     end
@@ -405,8 +407,6 @@ module FTPD
         end
       end
     end
-
-    private
 
     def build_path(filename = nil)
       if filename && filename[0,1] == "/"
