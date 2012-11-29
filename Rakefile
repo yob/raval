@@ -6,8 +6,28 @@ require 'rake'
 require 'rdoc/task'
 require 'rspec/core/rake_task'
 
-desc "Default Task"
-task :default => [ :spec ]
+# Cane requires ripper, which appears to only work on MRI 1.9
+if RUBY_VERSION >= "1.9" && RUBY_ENGINE == "ruby"
+
+  desc "Default Task"
+  task :default => [ :quality, :spec ]
+
+  require 'cane/rake_task'
+  require 'morecane'
+
+  desc "Run cane to check quality metrics"
+  Cane::RakeTask.new(:quality) do |cane|
+    cane.abc_max = 20
+    cane.style_measure = 100
+    cane.max_violations = 4
+
+    cane.use Morecane::EncodingCheck, :encoding_glob => "{app,lib,spec}/**/*.rb"
+  end
+
+else
+  desc "Default Task"
+  task :default => [ :spec ]
+end
 
 # run all rspecs
 desc "Run all rspec files"
