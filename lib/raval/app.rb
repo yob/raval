@@ -15,8 +15,8 @@ module Raval
   #     :host - the host IP to listen on. [default: 127.0.0.1]
   #     :port - the TCP port to listen on [default: 21]
   #     :pid_file - a path to write the process pid to. Useful for monitoring
-  #     :uid - the user ID to change the process owner to
-  #     :gid - the group ID to change the process owner to
+  #     :user - the user ID to change the process owner to
+  #     :group - the group ID to change the process owner to
   #     :name - an optional name to place in the process description
   class App
 
@@ -62,11 +62,25 @@ module Raval
     end
 
     def uid
-      @options[:uid]
+      if @options[:user]
+        begin
+          detail = Etc.getpwnam(@options[:user])
+          return detail.uid
+        rescue
+          $stderr.puts "user must be nil or a real account" if detail.nil?
+        end
+      end
     end
 
     def gid
-      @options[:gid]
+      if @options[:group]
+        begin
+          detail = Etc.getgrnam(@options[:group])
+          return detail.gid
+        rescue
+          $stderr.puts "group must be nil or a real group" if detail.nil?
+        end
+      end
     end
 
     def pid_file
