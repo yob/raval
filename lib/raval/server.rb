@@ -10,13 +10,11 @@ module Raval
   class Server
     include Celluloid::IO
 
-    def initialize(host, port, driver)
-      @driver = driver
+    def initialize(host, port, driver, driver_opts)
+      @driver, @driver_opts = driver, driver_opts
       # Since we included Celluloid::IO, we're actually making a
       # Celluloid::IO::TCPServer here
-      File.open("/tmp/raval.log","a") { |a| a.puts "about to start server"}
       @server = TCPServer.new(host, port)
-      File.open("/tmp/raval.log","a") { |a| a.puts "server started"}
       run!
     rescue Errno::EACCES
       $stderr.puts "Unable to listen on port #{port}"
@@ -32,8 +30,12 @@ module Raval
     end
 
     def handle_connection(socket)
-      File.open("/tmp/raval.log","a") { |a| a.puts "handling connection"}
-      handler = Handler.new(@driver.new)
+      if @driver_opts
+        driver = @driver.new(@driver_opts)
+      else
+        driver = @driver.new
+      end
+      handler = Handler.new(driver)
       connection = Connection.new(handler, socket)
       connection.read_commands
     rescue EOFError, IOError

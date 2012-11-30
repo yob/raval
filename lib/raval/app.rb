@@ -12,6 +12,8 @@ module Raval
   # Options:
   #
   #     :driver - the driver class that implements persistance
+  #     :driver_opts - an optional Hash of options to be passed to the driver
+  #                    constructor
   #     :host - the host IP to listen on. [default: 127.0.0.1]
   #     :port - the TCP port to listen on [default: 21]
   #     :pid_file - a path to write the process pid to. Useful for monitoring
@@ -32,7 +34,7 @@ module Raval
       update_procline
 
       puts "Starting ftp server on 0.0.0.0:#{port}"
-      Raval::Server.supervise(host,port, driver)
+      Raval::Server.supervise(host,port, driver, driver_opts)
 
       change_gid
       change_uid
@@ -53,6 +55,10 @@ module Raval
 
     def port
       @options.fetch(:port, 21)
+    end
+
+    def driver_opts
+      @options[:driver_opts]
     end
 
     def driver
