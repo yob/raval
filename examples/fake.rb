@@ -84,11 +84,23 @@ class FakeFTPDriver
   private
 
   def dir_item(name)
-    OpenStruct.new(:name => name, :directory => true, :size => 0)
+    OpenStruct.new(:name => name,
+                   :directory => true,
+                   :size => 0,
+                   :owner => "user",
+                   :group => "group",
+                   :time  => Time.now,
+                   :permissions => "r--r--r--")
   end
 
   def file_item(name, bytes)
-    OpenStruct.new(:name => name, :directory => false, :size => bytes)
+    OpenStruct.new(:name => name,
+                   :directory => false,
+                   :size => bytes,
+                   :owner => "user",
+                   :group => "group",
+                   :time  => Time.now,
+                   :permissions => "r--r--r--")
   end
 
 end
