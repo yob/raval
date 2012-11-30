@@ -44,7 +44,7 @@ To get started quickly, try out the example in the git repo like so:
 
     ruby -Ilib examples/fake.rb
 
-## The Driver Contract
+### The Driver Contract
 
 The driver MUST have the following methods.  Each method MUST accept the listed
 parameters and return an appropriate value:
@@ -97,7 +97,7 @@ listed parameters and return an appropriate value:
     - an integer indicating the number of bytes received or False if there
       was an error
 
-## The File Entry Contract
+### The File Entry Contract
 
 The Driver#dir_contents method must return an array of Entry objects that
 describe each item in a directory. Each of these Entry objects MUST have
@@ -124,6 +124,29 @@ return nil if you're happy for raval to use a reasonable default.
 
     name
     - the name of the file or directory
+
+### Driver Options
+
+Some drivers may need configuration options - for server addresses or usernames
+or whatever. To do so, just write your driver constructor to accept an options
+hash, and then use it like so:
+
+    require 'raval'
+
+    class MyDriver
+      def initialize(opts = {})
+
+      end
+
+      .. remaining implementation here ..
+    end
+
+    Raval::App.start(:host   => "127.0.0.1",
+                     :port   => 3000,
+                     :driver => MyDriver,
+                     :driver_opts => {:foo => :bar})
+
+You can see an example of driver options in examples/fog.rb.
 
 ## Contributors
 
