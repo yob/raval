@@ -3,19 +3,17 @@
 module Raval
 
   # Holds the logic for booting a raval server and configuring the
-  # process as required, including daemonising, writing a pid file, etc.
+  # process as required, binding to a port, writing a pid file, etc.
   #
   # Use it like so:
   #
-  #    Raval::App.start(:port => 3000, :daemonise => true)
+  #    Raval::App.start(:port => 3000)
   #
   # Options:
   #
   #     :driver - the driver class that implements persistance
   #     :host - the host IP to listen on. [default: 127.0.0.1]
   #     :port - the TCP port to listen on [default: 21]
-  #     :daemonise - a boolean that indicates if the process should daemonise
-  #                  [default: false]
   #     :pid_file - a path to write the process pid to. Useful for monitoring
   #     :uid - the user ID to change the process owner to
   #     :gid - the group ID to change the process owner to
@@ -36,7 +34,7 @@ module Raval
       puts "Starting ftp server on 0.0.0.0:#{port}"
       Raval::Server.supervise(host,port, driver)
 
-      daemonise! if daemonise?
+      write_pid
       change_gid
       change_uid
       setup_signal_handlers
@@ -75,24 +73,9 @@ module Raval
       @options[:pid_file]
     end
 
-    def daemonise?
-      @options[:daemonise]
-    end
-
-    def daemonise!
-      ## close unneeded descriptors,
-      $stdin.reopen("/dev/null")
-      $stdout.reopen("/dev/null","w")
-      $stderr.reopen("/dev/null","w")
-
-      ## drop into the background.
-      pid = fork
-      if pid
-        ## parent: save pid of child, then exit
-        if pid_file
-          File.open(pid_file, "w") { |io| io.write pid }
-        end
-        exit!
+    def write_pid
+      if pid_file
+        File.open(pid_file, "w") { |io| io.write pid }
       end
     end
 

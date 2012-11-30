@@ -14,7 +14,9 @@ module Raval
       @driver = driver
       # Since we included Celluloid::IO, we're actually making a
       # Celluloid::IO::TCPServer here
+      File.open("/tmp/raval.log","a") { |a| a.puts "about to start server"}
       @server = TCPServer.new(host, port)
+      File.open("/tmp/raval.log","a") { |a| a.puts "server started"}
       run!
     end
 
@@ -27,6 +29,7 @@ module Raval
     end
 
     def handle_connection(socket)
+      File.open("/tmp/raval.log","a") { |a| a.puts "handling connection"}
       handler = Handler.new(@driver.new)
       connection = Connection.new(handler, socket)
       connection.read_commands
