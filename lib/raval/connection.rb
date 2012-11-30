@@ -1,6 +1,6 @@
 # coding: utf-8
 
-module FTPD
+module Raval
   # wraps a raw TCP socket and simplifies working with FTP style data.
   #
   # FTP commands and responses are always a single line ending in a line break,
@@ -25,7 +25,7 @@ module FTPD
     end
 
     def send_response(code, message)
-      @socket.write("#{code} #{message}#{FTPD::LBRK}")
+      @socket.write("#{code} #{message}#{Raval::LBRK}")
     end
 
     # Close the connection

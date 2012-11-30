@@ -4,7 +4,7 @@ require "rubygems"
 require "bundler"
 Bundler.setup
 
-require 'ftpd'
+require 'raval'
 
 
 # Requires supporting ruby files with custom matchers and macros, etc,

@@ -1,7 +1,7 @@
 # coding: utf-8
 
-require 'ftpd/server'
+require 'raval/server'
 
-module FTPD
+module Raval
   LBRK = "\r\n"
 end

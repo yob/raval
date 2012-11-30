@@ -23,13 +23,13 @@ def a_valid_file
                  :time  => Time.mktime(2012,10,10,10,10),
                  :name  => "one.txt")
 end
-describe FTPD::ListFormatter, "initialisation" do
+describe Raval::ListFormatter, "initialisation" do
   context "with a directory and a file" do
     let!(:files) { [a_valid_directory, a_valid_file] }
 
     it "should initialise without error" do
       lambda {
-        FTPD::ListFormatter.new(files)
+        Raval::ListFormatter.new(files)
       }.should_not raise_error(ArgumentError)
     end
   end
@@ -38,17 +38,17 @@ describe FTPD::ListFormatter, "initialisation" do
 
     it "should raise an exception" do
       lambda {
-        FTPD::ListFormatter.new(files)
+        Raval::ListFormatter.new(files)
       }.should raise_error(ArgumentError)
     end
   end
 
 end
 
-describe FTPD::ListFormatter, "#short" do
+describe Raval::ListFormatter, "#short" do
   context "with a directory and a file" do
     let!(:files) { [a_valid_directory, a_valid_file] }
-    subject      { FTPD::ListFormatter.new(files)}
+    subject      { Raval::ListFormatter.new(files)}
 
     it "should return an array of the names" do
       subject.short.should == ["files","one.txt"]
@@ -56,10 +56,10 @@ describe FTPD::ListFormatter, "#short" do
   end
 end
 
-describe FTPD::ListFormatter, "#detailed" do
+describe Raval::ListFormatter, "#detailed" do
   context "with a directory and a file" do
     let!(:files) { [a_valid_directory, a_valid_file] }
-    subject      { FTPD::ListFormatter.new(files)}
+    subject      { Raval::ListFormatter.new(files)}
 
     it "should return an array of the names" do
       subject.detailed.should == [

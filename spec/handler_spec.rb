@@ -5,7 +5,7 @@ require "spec_helper"
 def handler_with_unauthenticated_user
   connection = double(:connection)
 
-  handler = FTPD::Handler.new(TestDriver.new)
+  handler = Raval::Handler.new(TestDriver.new)
   connection.should_receive(:send_response).with(220, anything)
   handler.new_connection(connection)
   handler
@@ -14,7 +14,7 @@ end
 def handler_with_authenticated_user
   connection = double(:connection)
 
-  handler = FTPD::Handler.new(TestDriver.new)
+  handler = Raval::Handler.new(TestDriver.new)
   connection.should_receive(:send_response).with(220, anything)
   handler.new_connection(connection)
   connection.should_receive(:send_response).with(331, anything).and_return(331)
@@ -24,12 +24,12 @@ def handler_with_authenticated_user
   handler
 end
 
-describe FTPD::Handler, "#new_connection" do
+describe Raval::Handler, "#new_connection" do
 
   let(:connection) { double(:connection) }
 
   subject {
-    FTPD::Handler.new(TestDriver.new)
+    Raval::Handler.new(TestDriver.new)
   }
 
   it "should default to a root name_prefix" do
@@ -44,7 +44,7 @@ describe FTPD::Handler, "#new_connection" do
   end
 end
 
-describe FTPD::Handler, "ALLO" do
+describe Raval::Handler, "ALLO" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -55,7 +55,7 @@ describe FTPD::Handler, "ALLO" do
   end
 end
 
-describe FTPD::Handler, "USER" do
+describe Raval::Handler, "USER" do
   context "with an unauthenticated user" do
 
     subject { handler_with_unauthenticated_user }
@@ -77,7 +77,7 @@ describe FTPD::Handler, "USER" do
 
 end
 
-describe FTPD::Handler, "PASS" do
+describe Raval::Handler, "PASS" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -120,7 +120,7 @@ end
 
 %w(CDUP XCUP).each do |command|
 
-  describe FTPD::Handler, command do
+  describe Raval::Handler, command do
     context "with an unauthenticated user" do
       subject { handler_with_unauthenticated_user }
 
@@ -150,7 +150,7 @@ end
   end
 end
 
-describe FTPD::Handler, "CWD" do
+describe Raval::Handler, "CWD" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -225,7 +225,7 @@ describe FTPD::Handler, "CWD" do
   end
 end
 
-describe FTPD::Handler, "DELE" do
+describe Raval::Handler, "DELE" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -255,7 +255,7 @@ describe FTPD::Handler, "DELE" do
   end
 end
 
-describe FTPD::Handler, "HELP" do
+describe Raval::Handler, "HELP" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
     it "should always respond with 214 when called" do
@@ -267,7 +267,7 @@ describe FTPD::Handler, "HELP" do
   end
 end
 
-describe FTPD::Handler, "NLST" do
+describe Raval::Handler, "NLST" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
     it "should respond with 530" do
@@ -299,7 +299,7 @@ describe FTPD::Handler, "NLST" do
   end
 end
 
-describe FTPD::Handler, "LIST" do
+describe Raval::Handler, "LIST" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
     it "should respond with 530" do
@@ -331,7 +331,7 @@ describe FTPD::Handler, "LIST" do
   end
 end
 
-describe FTPD::Handler, "MKD" do
+describe Raval::Handler, "MKD" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -360,7 +360,7 @@ describe FTPD::Handler, "MKD" do
   end
 end
 
-describe FTPD::Handler, "MODE" do
+describe Raval::Handler, "MODE" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -388,7 +388,7 @@ describe FTPD::Handler, "MODE" do
   end
 end
 
-describe FTPD::Handler, "NOOP" do
+describe Raval::Handler, "NOOP" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -399,7 +399,7 @@ describe FTPD::Handler, "NOOP" do
   end
 end
 
-describe FTPD::Handler, "PASV" do
+describe Raval::Handler, "PASV" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -415,7 +415,7 @@ describe FTPD::Handler, "PASV" do
   end
 end
 
-describe FTPD::Handler, "EPSV" do
+describe Raval::Handler, "EPSV" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -431,7 +431,7 @@ describe FTPD::Handler, "EPSV" do
   end
 end
 
-describe FTPD::Handler, "PORT" do
+describe Raval::Handler, "PORT" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -447,7 +447,7 @@ describe FTPD::Handler, "PORT" do
   end
 end
 
-describe FTPD::Handler, "EPRT" do
+describe Raval::Handler, "EPRT" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -464,7 +464,7 @@ describe FTPD::Handler, "EPRT" do
 end
 
 %w(PWD XPWD).each do |command|
-  describe FTPD::Handler, command do
+  describe Raval::Handler, command do
     context "with an unauthenticated user" do
       subject { handler_with_unauthenticated_user }
 
@@ -492,7 +492,7 @@ end
   end
 end
 
-describe FTPD::Handler, "RETR" do
+describe Raval::Handler, "RETR" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -534,7 +534,7 @@ describe FTPD::Handler, "RETR" do
   end
 end
 
-describe FTPD::Handler, "REST" do
+describe Raval::Handler, "REST" do
   context "with an authenticated user" do
     subject { handler_with_authenticated_user }
 
@@ -546,7 +546,7 @@ describe FTPD::Handler, "REST" do
 end
 
 %w(RMD XRMD).each do |command|
-  describe FTPD::Handler, command do
+  describe Raval::Handler, command do
     context "with an unauthenticated user" do
       subject { handler_with_unauthenticated_user }
 
@@ -576,7 +576,7 @@ end
   end
 end
 
-describe FTPD::Handler, "RNFR" do
+describe Raval::Handler, "RNFR" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -600,7 +600,7 @@ describe FTPD::Handler, "RNFR" do
   end
 end
 
-describe FTPD::Handler, "RNTO" do
+describe Raval::Handler, "RNTO" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -634,7 +634,7 @@ describe FTPD::Handler, "RNTO" do
   end
 end
 
-describe FTPD::Handler, "QUIT" do
+describe Raval::Handler, "QUIT" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -646,7 +646,7 @@ describe FTPD::Handler, "QUIT" do
   end
 end
 
-describe FTPD::Handler, "SIZE" do
+describe Raval::Handler, "SIZE" do
 
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
@@ -686,7 +686,7 @@ describe FTPD::Handler, "SIZE" do
   end
 end
 
-describe FTPD::Handler, "MDTM" do
+describe Raval::Handler, "MDTM" do
 
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
@@ -726,7 +726,7 @@ describe FTPD::Handler, "MDTM" do
   end
 end
 
-describe FTPD::Handler, "STOR" do
+describe Raval::Handler, "STOR" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -747,7 +747,7 @@ describe FTPD::Handler, "STOR" do
   end
 end
 
-describe FTPD::Handler, "STRU" do
+describe Raval::Handler, "STRU" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -776,7 +776,7 @@ describe FTPD::Handler, "STRU" do
   end
 end
 
-describe FTPD::Handler, "SYST" do
+describe Raval::Handler, "SYST" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 
@@ -796,7 +796,7 @@ describe FTPD::Handler, "SYST" do
   end
 end
 
-describe FTPD::Handler, "TYPE" do
+describe Raval::Handler, "TYPE" do
   context "with an unauthenticated user" do
     subject { handler_with_unauthenticated_user }
 

@@ -1,12 +1,12 @@
 # coding: utf-8
 
-require 'ftpd/active_socket'
-require 'ftpd/passive_socket'
-require 'ftpd/list_formatter'
+require 'raval/active_socket'
+require 'raval/passive_socket'
+require 'raval/list_formatter'
 require 'stringio'
 require 'tempfile'
 
-module FTPD
+module Raval
   # implement the FTP wire protocol, deferring the users driver when interaction
   # with the persistence layer is required. Nothing in this class is network
   # aware, it should remain ignorant of where the FTP connection is from and
@@ -36,7 +36,7 @@ module FTPD
       @user   = nil
       @name_prefix = "/"
       @connection = connection
-      @connection.send_response(220, "FTP server (celluloid-ftpd) ready")
+      @connection.send_response(220, "FTP server (raval) ready")
     end
 
     def receive_line(line)
@@ -68,7 +68,7 @@ module FTPD
       commands = COMMANDS
       str = ""
       commands.sort.each_slice(3) { |slice|
-        str += "     " + slice.join("\t\t") + FTPD::LBRK
+        str += "     " + slice.join("\t\t") + Raval::LBRK
       }
       @connection.send_response(str, "")
       @connection.send_response(214, "End of list.")
@@ -392,7 +392,7 @@ module FTPD
     end
 
     def cmd_stor_tempfile(target_path)
-      Tempfile.open("celluloid-ftpd") do |tmpfile|
+      Tempfile.open("raval") do |tmpfile|
         tmpfile.binmode
 
         @connection.send_response(150, "Data transfer starting")

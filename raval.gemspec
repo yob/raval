@@ -1,17 +1,17 @@
 Gem::Specification.new do |spec|
-  spec.name = "ftpd"
+  spec.name = "raval"
   spec.version = "0.0.1"
-  spec.summary = "An FTP daemon framework"
+  spec.summary = "An FTP daemon (ftpd) framework"
   spec.description = "Build a custom FTP daemon backed by a datastore of your choice"
   spec.files =  Dir.glob("{bin,examples,lib}/**/**/*") + ["Gemfile", "README.markdown","MIT-LICENSE"]
-  spec.executables << "ftpd"
+  spec.executables << "raval"
   spec.has_rdoc = true
   spec.extra_rdoc_files = %w{README.markdown MIT-LICENSE }
-  spec.rdoc_options << '--title' << 'FTPd Documentation' <<
+  spec.rdoc_options << '--title' << 'raval FTPd Documentation' <<
                        '--main'  << 'README.markdown' << '-q'
   spec.authors = ["James Healy"]
   spec.email   = ["jamed@yob.id.au"]
-  spec.homepage = "http://github.com/yob/ftpd"
+  spec.homepage = "http://github.com/yob/raval"
   spec.required_ruby_version = ">=1.9.2"
 
   spec.add_development_dependency("rake")

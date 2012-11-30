@@ -1,10 +1,10 @@
 # coding: utf-8
 
 require 'celluloid/io'
-require 'ftpd/handler'
-require 'ftpd/connection'
+require 'raval/handler'
+require 'raval/connection'
 
-module FTPD
+module Raval
   # The beginning of things. Listens on a TCP socket for incoming connections
   # and spins off a new agent to handle each connection.
   class Server

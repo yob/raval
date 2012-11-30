@@ -3,7 +3,7 @@
 require 'celluloid/io'
 require 'socket'
 
-module FTPD
+module Raval
   # In Active FTP mode, the client opens a listening data socket on their host
   # and we connect to it.
   #

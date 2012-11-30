@@ -1,6 +1,6 @@
 # coding: utf-8
 
-module FTPD
+module Raval
   # converts a list of objects that describe the contents of a directory and
   # formats them to be valid responses to the LIST or NLST FTP commands.
   class ListFormatter

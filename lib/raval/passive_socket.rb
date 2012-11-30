@@ -2,7 +2,7 @@
 
 require 'celluloid/io'
 
-module FTPD
+module Raval
   # In passive FTP mode, the server opens a listening data socket and the client
   # will connect to it.
   #

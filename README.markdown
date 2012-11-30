@@ -1,4 +1,4 @@
-# FTPd
+# raval
 
 An experimental FTP server framework built on top of Celluloid. Celluloid is a
 concurrency library that uses threads, so you will get the best results by
@@ -34,7 +34,7 @@ Once that's ready, boot a new server like so:
       .. implementation here ..
     end
 
-    FTPD::Server.supervise("127.0.0.1","3000", MyDriver)
+    Raval::Server.supervise("127.0.0.1","3000", MyDriver)
 
 To get started quickly, try out the example in the git repo like so:
 
