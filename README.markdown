@@ -21,7 +21,7 @@ The examples directory contains a demonstration of in memory persistence.
 
 ## Installation
 
-   None yet
+    gem install raval
 
 ## Usage
 
@@ -61,13 +61,13 @@ parameters and return an appropriate value:
       nil if the file doesn't exist
 
     change_dir(path)
-    - a boolen indicating if the current user is permitted to change to the
+    - a boolean indicating if the current user is permitted to change to the
       requested path
 
     dir_contents(path)
     - an array of the contents of the requested path or nil if the dir
-      doesn't exist. Each entry in the array should be
-      EM::FTPD::DirectoryItem-ish
+      doesn't exist. Each entry in the array should meet the Entry contract
+      defined below.
 
     delete_dir(path)
     - a boolean indicating if the directory was successfully deleted
@@ -97,7 +97,35 @@ listed parameters and return an appropriate value:
     - an integer indicating the number of bytes received or False if there
       was an error
 
-## Authors
+## The File Entry Contract
+
+The Driver#dir_contents method must return an array of Entry objects that
+describe each item in a directory. Each of these Entry objects MUST have
+the following methods and return values. All methods (except name) can
+return nil if you're happy for raval to use a reasonable default.
+
+    directory
+    - a boolean indicating if the entry is a directory
+
+    size
+    - the number of bytes in a file. 0 if the entry is a directory
+
+    permissions
+    - a string describing the current users permissions on the entry
+
+    owner
+    - the name of the user that owns the entry
+
+    group
+    - the name of the group that owns the entry
+
+    time
+    - a Time-ish object that indicates when the entry was last modified
+
+    name
+    - the name of the file or directory
+
+## Contributors
 
 * James Healy <james@yob.id.au> [http://www.yob.id.au](http://www.yob.id.au)
 * John Nunemaker <nunemaker@gmail.com>
