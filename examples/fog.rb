@@ -57,31 +57,19 @@ class FogFTPDriver
   def bytes(path)
     prefix = scoped_path(path)
     file = directory.files.head(prefix)
-    if file
-      file.content_length
-    else
-      nil
-    end
+    file ? file.content_length : nil
   end
 
   def modified_time(path)
     prefix = scoped_path(path)
     file = directory.files.head(prefix)
-    if file
-      file.last_modified
-    else
-      nil
-    end
+    file ? file.last_modified : nil
   end
 
   def get_file(path)
     prefix = scoped_path(path)
     file = directory.files.get(prefix)
-    if file
-      file.body
-    else
-      nil
-    end
+    file ? file.body : nil
   end
 
   def put_file(path, tmp_path)
@@ -96,11 +84,7 @@ class FogFTPDriver
   def delete_file(path)
     prefix = scoped_path(path)
     file = directory.files.head(prefix)
-    if file
-      file.destroy
-    else
-      nil
-    end
+    file ? file.destroy : nil
   end
 
   def delete_dir(path)
