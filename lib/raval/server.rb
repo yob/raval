@@ -18,6 +18,9 @@ module Raval
       @server = TCPServer.new(host, port)
       File.open("/tmp/raval.log","a") { |a| a.puts "server started"}
       run!
+    rescue Errno::EACCES
+      $stderr.puts "Unable to listen on port #{port}"
+      exit
     end
 
     def finalize
