@@ -22,9 +22,11 @@ module Raval
       # TODO ::TcpServer#addr exists, but Celluloid::IO::TcpServer#addr does
       #      not. Once that's fixed, make this port random by replacing 30000
       #      with 0
-      @server = TCPServer.new(@host, 30000)
+      #@server = TCPServer.new(@host, 0)
       #@port = @server.addr[1]
-      @port = 30000
+      @port = choose_port(@host)
+      @server = TCPServer.new(@host, @port)
+      #@port = @server.addr[1]
       run!
     end
 
@@ -65,5 +67,20 @@ module Raval
     rescue EOFError, IOError
       puts "*** passive socket disconnected"
     end
+
+    def choose_port(host)
+      candidate = 30000
+      while candidate < 40000
+        begin
+          server = TCPServer.new(host, candidate)
+          server.close
+          return candidate
+        rescue
+          candidate += 1
+        end
+      end
+      nil
+    end
+
   end
 end
