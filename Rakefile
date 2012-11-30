@@ -37,10 +37,9 @@ end
 # Genereate the RDoc documentation
 desc "Create documentation"
 RDoc::Task.new do |rdoc|
-  rdoc.title = "ftpd"
+  rdoc.title = "raval"
   rdoc.rdoc_dir = (ENV['CC_BUILD_ARTIFACTS'] || 'doc') + '/rdoc'
-  rdoc.rdoc_files.include('README.rdoc')
-  rdoc.rdoc_files.include('TODO')
+  rdoc.rdoc_files.include('README.markdown')
   rdoc.rdoc_files.include('CHANGELOG')
   rdoc.rdoc_files.include('MIT-LICENSE')
   rdoc.rdoc_files.include('lib/**/*.rb')
