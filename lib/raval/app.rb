@@ -34,9 +34,9 @@ module Raval
       puts "Starting ftp server on 0.0.0.0:#{port}"
       Raval::Server.supervise(host,port, driver)
 
-      write_pid
       change_gid
       change_uid
+      write_pid
       setup_signal_handlers
       sleep # for ever
     end
