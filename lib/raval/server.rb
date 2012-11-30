@@ -11,8 +11,6 @@ module Raval
     include Celluloid::IO
 
     def initialize(host, port, driver)
-      puts "*** Starting ftp server on #{host}:#{port}"
-
       @driver = driver
       # Since we included Celluloid::IO, we're actually making a
       # Celluloid::IO::TCPServer here

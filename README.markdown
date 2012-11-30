@@ -30,11 +30,15 @@ persistence layer - the required driver contract is listed below.
 
 Once that's ready, boot a new server like so:
 
+    require 'raval'
+
     class MyDriver
       .. implementation here ..
     end
 
-    Raval::Server.supervise("127.0.0.1","3000", MyDriver)
+    Raval::App.start(:host   => "127.0.0.1",
+                     :port   => 3000,
+                     :driver => MyDriver)
 
 To get started quickly, try out the example in the git repo like so:
 

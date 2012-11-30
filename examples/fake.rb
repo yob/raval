@@ -9,7 +9,7 @@
 
 require 'ostruct'
 require 'stringio'
-require 'ftpd'
+require 'raval'
 
 class FakeFTPDriver
   FILE_ONE = "This is the first file available for download.\n\nBy James"
@@ -93,6 +93,6 @@ class FakeFTPDriver
 
 end
 
-FTPD::Server.supervise("127.0.0.1","3000", FakeFTPDriver)
-
-sleep
+Raval::App.start(:host   => "127.0.0.1",
+                 :port   => 3000,
+                 :driver => FakeFTPDriver)
