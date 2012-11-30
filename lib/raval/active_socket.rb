@@ -42,7 +42,7 @@ module Raval
     end
 
     def close
-      @socket.close
+      @socket.close if @socket
       @socket = nil
     end
   end
