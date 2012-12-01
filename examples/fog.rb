@@ -20,6 +20,9 @@ require 'stringio'
 require 'raval'
 require 'fog'
 
+# the raval gem handles all the FTP protocol details, this driver just acts as
+# an intermediary between raval and the chosen persistence layer - in this case
+# that's Fog.
 class FogFTPDriver
 
   def initialize(options = {})
